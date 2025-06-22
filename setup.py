@@ -7,7 +7,7 @@ package_name = 'pydemo'
 setup(
     name=package_name,
     version='0.0.0',
-    packages=['pydemo', 'pydemo.nodes'],
+    packages=['pydemo', 'pydemo.nodes', 'pydemo.scripts'],
     data_files=[
         ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
@@ -24,7 +24,11 @@ setup(
     entry_points={
         'console_scripts': [
             'capture_image_service = pydemo.nodes.capture_image_service:main',
-            'py_trees_main = pydemo.py_trees_main:main'
+            'py_trees_main = pydemo.py_trees_main:main',
+            'reference = pydemo.scripts.reference:main',
+            'capture = pydemo.scripts.capture:main',
+            'reference_service = pydemo.nodes.reference_service:main',
+            'reference_node = pydemo.nodes.reference_node:main',
         ],
     },
 )

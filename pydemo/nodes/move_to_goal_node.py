@@ -21,8 +21,8 @@ class MoveToGoal(py_trees.behaviour.Behaviour):
     def update(self):
         # 🛰 Navigation2 서버 연결 확인
         if not self.client.wait_for_server(timeout_sec=5.0):
-            print(f"[❌] Nav2 서버 연결 실패 - WP{self.index} 시도 {self.attempt}")
-            return py_trees.common.Status.SUCCESS
+            print(f"[⏳] Nav2 서버 연결 대기 중 - WP{self.index} 시도 {self.attempt}")  # 🔧 수정: 연결 실패 시 SUCCESS 대신 RUNNING 반환하여 계속 대기
+            return py_trees.common.Status.RUNNING
 
         print(f"[🧭] WP{self.index} 이동 시작 - 시도 {self.attempt}")
 
@@ -41,10 +41,11 @@ class MoveToGoal(py_trees.behaviour.Behaviour):
         rclpy.spin_until_future_complete(self.node, result_future)
         result = result_future.result()
 
-        if result.status == 1:
+        # 🎉 도착 성공 여부 체크 (수정: SUCCEEDED(4) 확인)
+        if result.status == 4:
             print(f"[✅] WP{self.index} 도착 성공 (시도 {self.attempt})")
         else:
-            print(f"[❌] WP{self.index} 도착 실패 (시도 {self.attempt})")
+            print(f"[⚠️] WP{self.index} 도착 실패 (시도 {self.attempt})")
 
         return py_trees.common.Status.SUCCESS
 
@@ -64,5 +65,8 @@ class MoveToGoal(py_trees.behaviour.Behaviour):
         goal.pose.pose.position.z = 0.0
 
         q = quaternion_from_euler(0, 0, float(pose['theta']))
-        goal.pose.pose.orientation.x, goal.pose.pose.orientation.y, goal.pose.pose.orientation.z, goal.pose.pose.orientation.w = q
+        (goal.pose.pose.orientation.x,
+         goal.pose.pose.orientation.y,
+         goal.pose.pose.orientation.z,
+         goal.pose.pose.orientation.w) = q
         return goal
